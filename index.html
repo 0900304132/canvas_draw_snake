@@ -1,10 +1,116 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-	<meta charset="UTF-8">
-	<title>canvas draw snake</title>
+    <meta charset="UTF-8">
+    <title>canvas draw snake</title>
 </head>
+
 <body>
-	
+    <canvas id="canvas" width="600" height="400">
+        not support
+    </canvas>
 </body>
+<script>
+var c, snake = {},
+    point = {};
+var canvas = document.getElementById('canvas');
+
+window.onload = function() {
+    drawInit();
+}
+
+function drawInit() {
+    //画布初始化
+    c = canvas.getContext('2d');
+    c.clearRect(0, 0, canvas.width, canvas.height);
+
+    //蛇对象初始化
+    snake.list = new Array();
+    snake.size = 10;
+    snake.speed = 0;
+    snake.curMove = "x";
+    snake.curDir = 1;
+    //最开始三块
+    for (var i = 0; i < 3; i++) {
+        snake.list.unshift({ 'x': i * snake.size, 'y': 0 });
+    }
+    //食物
+    createPoint();
+
+    drawSnake();
+}
+
+function drawSnake() {
+    if (snake.speed <= 0) {
+        c.clearRect(0, 0, canvas.width, canvas.height);
+        var snakeList = snake.list;
+        if (snakeList[0].x < point.x) {
+            snake.curMove = "x";
+            snake.curDir = 1;
+        } else if (snakeList[0].x > point.x) {
+            snake.curMove = "x";
+            snake.curDir = -1;
+        } else if (snakeList[0].y < point.y) {
+            snake.curMove = "y";
+            snake.curDir = 1;
+        } else if (snakeList[0].y > point.y) {
+            snake.curMove = "y";
+            snake.curDir = -1;
+        } else {
+            snakeList.unshift({ 'x': point.x, 'y': point.y });
+            createPoint();
+            drawSnake();
+            return;
+        }
+
+        for (var i in snakeList) {
+            if (i == 0) {
+                c.fillStyle = '#ff0000';
+            } else {
+                c.fillStyle = '#000000';
+            }
+            c.fillRect(
+                snakeList[i].x,
+                snakeList[i].y,
+                snake.size,
+                snake.size,
+            );
+        }
+
+        c.fillStyle = '#00ff00';
+        c.fillRect(
+            point.x,
+            point.y,
+            snake.size,
+            snake.size,
+        );
+
+        var tailTemp = snakeList.pop();
+        if (snake.curMove == 'x') {
+            tailTemp.x = snakeList[0].x + snake.size * snake.curDir;
+            tailTemp.y = snakeList[0].y;
+        } else {
+            tailTemp.x = snakeList[0].x;
+            tailTemp.y = snakeList[0].y + snake.size * snake.curDir;
+        }
+        snakeList.unshift(tailTemp);
+        snake.speed = 1;
+    } else {
+        --snake.speed;
+    }
+
+    if (snake.list[0].x <= canvas.width) {
+        window.requestAnimationFrame(drawSnake);
+    } else {
+        console.debug(snake.list);
+    }
+}
+
+function createPoint() {
+    point.x = Math.floor(Math.random() * canvas.width / 10) * 10;
+    point.y = Math.floor(Math.random() * canvas.height / 10) * 10;
+}
+</script>
+
 </html>
